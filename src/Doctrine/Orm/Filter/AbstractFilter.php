@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ApiPlatform\Doctrine\Orm\Filter;
 
+use ApiPlatform\Doctrine\Common\Filter\PropertyAwareFilterInterface;
 use ApiPlatform\Doctrine\Common\PropertyHelperTrait;
 use ApiPlatform\Doctrine\Orm\PropertyHelperTrait as OrmPropertyHelperTrait;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
@@ -23,7 +24,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
-abstract class AbstractFilter implements FilterInterface
+abstract class AbstractFilter implements FilterInterface, PropertyAwareFilterInterface
 {
     use OrmPropertyHelperTrait;
     use PropertyHelperTrait;
@@ -65,6 +66,14 @@ abstract class AbstractFilter implements FilterInterface
     }
 
     /**
+     * @param string[] $properties
+     */
+    public function setProperties(array $properties): void
+    {
+        $this->properties = $properties;
+    }
+
+    /**
      * Determines whether the given property is enabled.
      */
     protected function isPropertyEnabled(string $property, string $resourceClass): bool
@@ -80,7 +89,7 @@ abstract class AbstractFilter implements FilterInterface
     protected function denormalizePropertyName(string|int $property): string
     {
         if (!$this->nameConverter instanceof NameConverterInterface) {
-            return $property;
+            return (string) $property;
         }
 
         return implode('.', array_map($this->nameConverter->denormalize(...), explode('.', (string) $property)));
