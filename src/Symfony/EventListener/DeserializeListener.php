@@ -79,10 +79,12 @@ final class DeserializeListener
             return;
         }
 
-        $this->provider->provide($operation, $request->attributes->get('_api_uri_variables') ?? [], [
+        $data = $this->provider->provide($operation, $request->attributes->get('_api_uri_variables') ?? [], [
             'request' => $request,
             'uri_variables' => $request->attributes->get('_api_uri_variables') ?? [],
             'resource_class' => $operation->getClass(),
         ]);
+
+        $request->attributes->set('data', $data);
     }
 }
